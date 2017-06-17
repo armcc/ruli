@@ -415,7 +415,7 @@ int ruli_in_print(FILE *out, const _ruli_addr *addr, int family)
 {
   switch (family) {
   case PF_INET:
-    return fprintf(out, inet_ntoa(addr->ipv4));
+    return fprintf(out, "%s", inet_ntoa(addr->ipv4));
 
   case PF_INET6:
     return ruli_inet6_print(out, &addr->ipv6);
