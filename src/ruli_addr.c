@@ -488,7 +488,7 @@ int ruli_in_snprint(char *buf, size_t size, const _ruli_addr *addr, int family)
 {
   switch (family) {
   case PF_INET:
-    return snprintf(buf, size, inet_ntoa(addr->ipv4));
+    return snprintf(buf, size, "%s", inet_ntoa(addr->ipv4));
 
   case PF_INET6:
     return ruli_inet6_snprint(buf, size, &addr->ipv6);    
