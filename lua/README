@@ -1,0 +1,56 @@
+#
+# $Id: README,v 1.4 2004/10/26 18:18:35 evertonm Exp $
+#
+
+COPYRIGHT AND LICENCE
+
+  Copyright (C) 2004 by Everton da Silva Marques
+
+  RULI is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2, or (at your option)
+  any later version.
+
+  RULI is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+  License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with RULI; see the file COPYING.  If not, write to the Free
+  Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA.
+
+
+INTRODUCTION
+
+  This file provides introductory notes about the Lua extension
+  for RULI, a library for easily querying DNS SRV resource
+  records (RFC 2782).
+
+  This module requires the RULI library, available from:
+  http://www.nongnu.org/ruli/
+
+  You'll need RULI 0.32 or higher.
+
+  Lua site is at: http://www.lua.org/
+
+
+INSTRUCTIONS
+
+  0) Install RULI and Lua in your system
+
+  1) Compile this binding: type 'make'
+
+  2) Put liblua-ruli.so in the dynamic loader search path
+     (See variable LD_LIBRARY_PATH, or the file /etc/ld.so.conf)
+
+  3) Put ruli.lua in the lua interpreter search path
+     (See variable LUA_PATH)
+
+  4) Test: see the file test.lua
+
+     $ lua test.lua
+
+-x-
+

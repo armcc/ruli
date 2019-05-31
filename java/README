@@ -1,0 +1,107 @@
+#
+# $Id: README,v 1.8 2004/10/26 18:18:35 evertonm Exp $
+#
+
+COPYRIGHT AND LICENCE
+
+  Copyright (C) 2004 by Everton da Silva Marques
+
+  RULI is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2, or (at your option)
+  any later version.
+
+  RULI is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+  License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with RULI; see the file COPYING.  If not, write to the Free
+  Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA.
+
+
+INTRODUCTION
+
+  This file provides introductory notes about the Java native
+  interface for RULI, a library for easily querying DNS SRV resource
+  records (RFC 2782).
+
+  This module requires the RULI library, available from:
+  http://www.nongnu.org/ruli/
+
+  You'll need RULI 0.32 or higher.
+
+
+COMPILE
+
+  You must properly install the RULI library on your system before
+  trying to use this module.
+
+  Type:
+
+    make
+
+  The compilation process issues the libjava-ruli.so library into
+  src/jni directory.
+
+
+INSTALL
+
+  Choose the installation directory, say '/usr/local/java-ruli'.
+
+  Type:
+
+    make INSTALL_DIR=/usr/local/java-ruli install
+
+  Add /usr/local/java-ruli/lib to your dynamic loader search path:
+
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/java-ruli/lib
+    
+  Add /usr/local/java-ruli/classes/java-ruli.jar to your system classpath:
+
+    export CLASSPATH=$CLASSPATH:/usr/local/java-ruli/classes/java-ruli.jar
+
+
+TEST
+
+  Run some tests:
+
+    java ruli.sample.RuliSyncSmtpSearch registro.br
+
+    java ruli.sample.RuliSyncSrvSearch _http._tcp registro.br
+
+    java ruli.sample.RuliSyncHttpSearch registro.br 80
+
+
+USAGE
+
+  Import the RuliSync class into your java program:
+
+    import ruli.RuliSync;
+
+  Use these class (static) methods for querying SRV records:
+
+    Map[] RuliSync.srvQuery(String service, String domain, 
+                            int fallbackPort, int options);
+
+    Map[] RuliSync.smtpQuery(String domain, int options);
+
+  Examples:
+
+    Map[] srvList = RuliSync.srvQuery("_ftp._tcp", "ftp-domain.tld", 21, 0);
+
+    Map[] srvList = RuliSync.smtpQuery("mail-domain.tld", 0);
+
+
+SAMPLE PROGRAMS
+
+  These simple java programs show how to use the native interface:
+
+    src/ruli/sample/RuliSyncSrvSearch.java
+
+    src/ruli/sample/RuliSyncSmtpSearch.java
+
+    src/ruli/sample/RuliSyncHttpSearch.java
+

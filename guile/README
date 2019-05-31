@@ -1,0 +1,109 @@
+#
+# $Id: README,v 1.5 2004/10/26 18:18:35 evertonm Exp $
+#
+
+
+COPYRIGHT AND LICENCE
+
+  Copyright (C) 2004 by Everton da Silva Marques
+
+  RULI is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2, or (at your option)
+  any later version.
+
+  RULI is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+  License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with RULI; see the file COPYING.  If not, write to the Free
+  Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA.
+
+
+INTRODUCTION
+
+  This file provides introductory notes about the Guile/Scheme
+  extension for RULI, a library for easily querying DNS SRV resource
+  records (RFC 2782).
+
+  This module requires the RULI library, available from:
+  http://www.nongnu.org/ruli/
+
+  You'll need RULI 0.32 or higher.
+
+
+INSTALLATION
+
+1) Make sure you have, at least, both Guile and RULI properly
+   installed on your system.
+
+2) Compile this Guile extension for RULI (libguile-ruli.so):
+
+   make
+
+3) Put libguile-ruli.so in the dynamic loader path and ruli.scm in the
+   Guile autoload path.
+
+   See the comments in the file ruli.scm, if you need more detailed
+   instructions.
+
+
+USAGE
+
+In the Guile interpreter, you can load the ruli module (extension)
+with:
+
+   (use-modules (ruli))
+
+
+SCHEME FUNCTIONS
+
+This module provides the following functions:
+
+   (ruli-sync-query service domain fallback_port [options])
+
+   (ruli-sync-smtp-query domain [options])
+
+   (ruli-sync-http-query domain [force-port [options]])
+
+Possible results are:
+
+   1) Symbol 'timeout'
+   2) Symbol 'unavailable'
+   3) List of errors: ( (srv-code <number>) [(rcode <number>)] )
+   4) List of SRV records, possibly empty, as in this example:
+
+      (
+       ( 
+        (target "host1.domain")
+        (priority 0)
+        (weight 10)
+        (port 25)
+        (addresses "1.1.1.1" "2.2.2.2") 
+       )
+       (
+        (target "host2.domain")
+        (priority 0)
+        (weight 0)
+        (port 80)
+        (addresses "3.3.3.3" "4.4.4.4") 
+       )
+      )
+
+
+EXAMPLES
+
+These are examples of invokation for the functions provided in this
+module:
+
+   (ruli-sync-query "_sip._udp" "sip-domain.tld" -1)
+
+   (ruli-sync-smtp-query "mail-domain.tld")
+
+   (ruli-sync-http-query "web-domain.tld")
+
+
+				 -x-

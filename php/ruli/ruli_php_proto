@@ -1,0 +1,3 @@
+array ruli_sync_query(string service, string domain, int fallback_port, long options) query SRV records synchronously
+array ruli_sync_smtp_query(string domain, long options) query SRV records synchronously for _smtp._tcp service
+array ruli_sync_http_query(string domain, int force_port, long options) query SRV records synchronously for _http._tcp service
