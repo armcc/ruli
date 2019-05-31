@@ -19,33 +19,22 @@ Boston, MA 02111-1307, USA.
 *-GNU-GPL-END-*/
 
 /*
-  $Id: ruli.h,v 1.10 2004/10/07 23:34:19 evertonm Exp $
-  */
+  $Id: trivial_conf_handler.h,v 1.1 2003/02/13 03:03:51 evertonm Exp $
+ */
 
 
-#ifndef RULI_H
-#define RULI_H
+#ifndef TRIVIAL_CONF_HANDLER_H
+#define TRIVIAL_CONF_HANDLER_H
 
 
-#include <ruli_mem.h>
-#include <ruli_util.h>
-#include <ruli_list.h>
-#include <ruli_addr.h>
-#include <ruli_sock.h>
-#include <ruli_txt.h>
-#include <ruli_res.h>
-#include <ruli_parse.h>
-#include <ruli_host.h>
-#include <ruli_srv.h>
-#include <ruli_search.h>
-/*
-#include <ruli_smtp.h>
-#include <ruli_http.h>
-#include <ruli_sync.h>
-#include <ruli_getaddrinfo.h>
-*/
+#include <ruli.h>
 
 
-#endif /* RULI_H */
+ruli_list_t *load_search_list(ruli_conf_handler_t *handler);
+void unload_search_list(ruli_conf_handler_t *handler, ruli_list_t *search_list);
+ruli_list_t *load_ns_list(ruli_conf_handler_t *handler);
+void unload_ns_list(ruli_conf_handler_t *handler, ruli_list_t *ns_list);
 
+
+#endif /* TRIVIAL_CONF_HANDLER_H */
 

@@ -31,6 +31,23 @@ Boston, MA 02111-1307, USA.
   Others are not subject to timeout restrictions.
  */
 
+/*-------------------------------------------------------------------------------------
+// Copyright 2007, Texas Instruments Incorporated
+//
+// This program has been modified from its original operation by Texas Instruments
+// to do the following:
+// 1. Made changes to bind the DNS requests to a specified interface.
+//
+// THIS MODIFIED SOFTWARE AND DOCUMENTATION ARE PROVIDED
+// "AS IS," AND TEXAS INSTRUMENTS MAKES NO REPRESENTATIONS
+// OR WARRENTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR ANY
+// PARTICULAR PURPOSE OR THAT THE USE OF THE SOFTWARE OR
+// DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY PATENTS,
+// COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+//
+// These changes are covered as per original license.
+//-------------------------------------------------------------------------------------*/
 
 #include <stdio.h>      /* FIXME: remove me [used for fprintf() debug] */
 #include <errno.h>      /* FIXME: remove me [used for strerror() debug] */
@@ -653,7 +670,11 @@ static void query_want_connect_tcp(ruli_res_query_t *qry)
     /*
      * Create socket
      */
-    server->tcp_sd = ruli_sock_create_tcp(server_addr->addr_family);
+    /*
+     * Added a new third parameter which holds the interface to use to send out the 
+     * DNS requests.
+     */
+    server->tcp_sd = ruli_sock_create_tcp(server_addr->addr_family, res_ctx->res_interface);
     if (server->tcp_sd == -1) {
 
       /*
@@ -1605,7 +1626,7 @@ static void *on_tcp_read(oop_source *oop_src, int tcp_sd,
   ruli_res_t       *res_ctx    = (ruli_res_t *) ctx;
   ruli_list_t      *query_list = &res_ctx->query_list;
   int              list_size   = ruli_list_size(query_list);
-  ruli_res_query_t *qry;
+  ruli_res_query_t *qry = NULL;
   int              i;
 
   assert(event == OOP_READ);

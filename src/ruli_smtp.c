@@ -248,7 +248,10 @@ static void *on_mx_answer(ruli_res_query_t *mx_qry, void *qry_arg)
 					      mx_rdata.target_len,
 					      mx_rdata.preference,
 					      -1,
-					      srv_qry->srv_fallback_port);
+					      srv_qry->srv_fallback_port,
+                          rr->ttl,
+                          rr->qclass,
+                          rr->type);
 	  if (!srv_entry) {
 	    ruli_parse_delete(&parse);
 	    return mx_query_done(srv_qry, RULI_SRV_CODE_FALL_OTHER, mx_qry);

@@ -21,6 +21,23 @@ Boston, MA 02111-1307, USA.
 /*
   $Id: ruli_res.c,v 1.36 2004/10/06 04:25:59 evertonm Exp $
   */
+/*-------------------------------------------------------------------------------------
+// Copyright 2007, Texas Instruments Incorporated
+//
+// This program has been modified from its original operation by Texas Instruments
+// to do the following:
+// 1. Made changes to bind the DNS requests to a specified interface.
+//
+// THIS MODIFIED SOFTWARE AND DOCUMENTATION ARE PROVIDED
+// "AS IS," AND TEXAS INSTRUMENTS MAKES NO REPRESENTATIONS
+// OR WARRENTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR ANY
+// PARTICULAR PURPOSE OR THAT THE USE OF THE SOFTWARE OR
+// DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY PATENTS,
+// COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+//
+// These changes are covered as per original license.
+//-------------------------------------------------------------------------------------*/
 
 
 #include <stdio.h>    /* FIXME: remove me [used for fprintf() debug] */
@@ -343,6 +360,12 @@ void ruli_res_delete(ruli_res_t *res_ctx)
 
   /* Release dynamic config */
   conf_unload(res_ctx);
+
+  /* Free res_interface string */
+  if(res_ctx->res_interface) {
+    ruli_free(res_ctx->res_interface);
+    res_ctx->res_interface = NULL;
+  }
 }
 
 /*
@@ -361,7 +384,7 @@ static int get_udp_socket(ruli_res_query_t *res_qry)
     sd = res_ctx->udp_sd;
     if (sd != -1)
       return sd;
-    sd = ruli_sock_create_udp(PF_INET);
+    sd = ruli_sock_create_udp(PF_INET, res_ctx->res_interface);
     if (sd == -1)
       return sd;
     res_ctx->udp_sd = sd;
@@ -371,7 +394,7 @@ static int get_udp_socket(ruli_res_query_t *res_qry)
     sd = res_ctx->udp6_sd;
     if (sd != -1)
       return sd;
-    sd = ruli_sock_create_udp(PF_INET6);
+    sd = ruli_sock_create_udp(PF_INET6, res_ctx->res_interface);
     if (sd == -1)
       return sd;
     res_ctx->udp6_sd = sd;

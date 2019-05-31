@@ -86,7 +86,7 @@ ruli_list_t *ruli_search_srv_answer_list(ruli_search_srv_t *search);
 /*
  * Resolver functions
  */
-ruli_search_res_t *ruli_search_res_new(oop_source *source, int retry, int timeout);
+ruli_search_res_t *ruli_search_res_new(oop_source *source, int retry, int timeout, char* interface);
 void ruli_search_res_delete(ruli_search_res_t *res);
 ruli_res_t *ruli_search_resolver(ruli_search_res_t *search_res);
 

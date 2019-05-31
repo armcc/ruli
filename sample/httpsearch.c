@@ -237,7 +237,7 @@ static void go(int port, long options)
    * Initialize resolver
    */
 
-  search_res = ruli_search_res_new(source, retry, timeout);
+  search_res = ruli_search_res_new(source, retry, timeout, NULL);
   if (!search_res) {
     fprintf(stderr,
             "%s: can't create ruli resolver\n",

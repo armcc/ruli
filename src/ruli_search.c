@@ -17,6 +17,23 @@ along with RULI; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 *-GNU-GPL-END-*/
+/*-------------------------------------------------------------------------------------
+// Copyright 2007, Texas Instruments Incorporated
+//
+// This program has been modified from its original operation by Texas Instruments
+// to do the following:
+// 1. Made changes to bind the DNS requests to a specified interface.
+//
+// THIS MODIFIED SOFTWARE AND DOCUMENTATION ARE PROVIDED
+// "AS IS," AND TEXAS INSTRUMENTS MAKES NO REPRESENTATIONS
+// OR WARRENTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR ANY
+// PARTICULAR PURPOSE OR THAT THE USE OF THE SOFTWARE OR
+// DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY PATENTS,
+// COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+//
+// These changes are covered as per original license.
+//-------------------------------------------------------------------------------------*/
 
 /*
   $Id: ruli_search.c,v 1.9 2004/10/08 04:22:15 evertonm Exp $
@@ -209,8 +226,12 @@ ruli_list_t *ruli_search_srv_answer_list(ruli_search_srv_t *search)
   return &(search->srv_query.answer_srv_list);
 }
 
+/*
+ * Added a new fourth parameter which holds the interface to use to send out the 
+ * DNS requests.
+ */
 ruli_search_res_t *ruli_search_res_new(oop_source *source, int retry, 
-				       int timeout)
+				       int timeout, char* interface)
 {
   ruli_search_res_t *search_res;
 
@@ -223,8 +244,19 @@ ruli_search_res_t *ruli_search_res_new(oop_source *source, int retry,
   search_res->resolver.res_retry        = retry;
   search_res->resolver.res_timeout      = timeout;
 
+  /* Copy the interface name to the resolver context */
+  if(interface && strlen(interface) > 0) {
+    if((search_res->resolver.res_interface = (char *) ruli_malloc(strlen(interface))) == NULL) {
+        ruli_free(search_res);
+        printf("ruli_res_new failed: interface malloc failed\n");
+        return 0;
+    }
+    strcpy(search_res->resolver.res_interface, interface);
+  }
+
   if (ruli_res_new(&search_res->resolver)) {
     ruli_free(search_res);
+    printf("ruli_res_new failed\n");
     return 0;
   }
 

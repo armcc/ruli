@@ -8,16 +8,19 @@
 default:
 	$(MAKE) -C src   
 	$(MAKE) -C sample 
+	$(MAKE) -C ti_sample
 
 .PHONY: clean
 clean:
 	$(MAKE) -C src    clean
 	$(MAKE) -C sample clean
+	$(MAKE) -C ti_sample clean
 
 .PHONY: install
 install:
 	$(MAKE) -C src    install
 	$(MAKE) -C sample install
+	$(MAKE) -C ti_sample install
 
 .PHONY: dpkg
 dpkg:

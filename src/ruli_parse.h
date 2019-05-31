@@ -98,6 +98,13 @@ typedef struct {
 } ruli_mx_rdata_t;
 
 typedef struct {
+  ruli_srv_rdata_t   srv_rdata;
+  ruli_uint16_t      type;
+  ruli_uint16_t      qclass; /* class is a C++ keyword */
+  ruli_uint32_t      ttl;
+} ti_srv_rr_t;
+
+typedef struct {
   /*
    * input
    */

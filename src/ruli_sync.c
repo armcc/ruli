@@ -92,7 +92,7 @@ ruli_sync_t *ruli_sync_query(const char *txt_service, const char *txt_domain,
    * Create search resolver context
    */
 
-  syn_qry->search_res = ruli_search_res_new(source, 2, 10);
+  syn_qry->search_res = ruli_search_res_new(source, 2, 10, NULL);
   if (!syn_qry->search_res) {
     oop_sys_delete(source_sys);
     ruli_free(syn_qry);
@@ -174,7 +174,7 @@ ruli_sync_t *ruli_sync_smtp_query(const char *txt_domain, long options)
    * Create search resolver context
    */
 
-  syn_qry->search_res = ruli_search_res_new(source, 2, 10);
+  syn_qry->search_res = ruli_search_res_new(source, 2, 10, NULL);
   if (!syn_qry->search_res) {
     oop_sys_delete(source_sys);
     ruli_free(syn_qry);
@@ -259,7 +259,7 @@ ruli_sync_t *ruli_sync_http_query(const char *txt_domain, int port,
    * Create search resolver context
    */
 
-  syn_qry->search_res = ruli_search_res_new(source, 2, 10);
+  syn_qry->search_res = ruli_search_res_new(source, 2, 10, NULL);
   if (!syn_qry->search_res) {
     oop_sys_delete(source_sys);
     ruli_free(syn_qry);

@@ -149,7 +149,7 @@ int ruli_addr_has_source(const ruli_addr_t *addr)
 
 _ruli_addr *ruli_addr_src_get_addr(const ruli_addr_t *addr)
 {
-  _ruli_addr *ad;
+  _ruli_addr *ad = NULL;
 
   assert(ruli_addr_has_source(addr));
 
@@ -669,7 +669,7 @@ static int match_prefix(const struct prefixlist *list,
 {
   int i;
   struct in6_addr in6_mem;
-  const struct in6_addr *in6;
+  const struct in6_addr *in6 = NULL;
 
   switch (family) {
   case PF_INET6:

@@ -408,7 +408,10 @@ static void *on_fallback_answer(ruli_host_t *qry, void *qry_arg)
                                         srv_qry->srv_domain_len,
                                         -1,
                                         -1,
-                                        srv_qry->srv_fallback_port);
+                                        srv_qry->srv_fallback_port,
+                                        -1,
+                                        -1,
+                                        -1);
     if (!srv_entry)
       return fall_query_done(srv_qry, RULI_SRV_CODE_FALL_OTHER, qry);
 
@@ -656,7 +659,7 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
     for (i = 0; i < an_list_size; ++i) {
       ruli_rr_t        *rr = (ruli_rr_t *) ruli_list_get(an_list, i);
-      ruli_srv_rdata_t *srv_rdata;
+      ti_srv_rr_t      *ti_srv_rr;
 
       if (rr->qclass != RULI_RR_CLASS_IN)
 	continue;
@@ -683,17 +686,21 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
       (i + 1), an_list_size);
 #endif
 
-      srv_rdata = (ruli_srv_rdata_t *) ruli_malloc(sizeof(ruli_srv_rdata_t));
-      if (!srv_rdata)
-	return query_done(srv_qry, RULI_SRV_CODE_MALLOC);
+      ti_srv_rr = (ti_srv_rr_t *) ruli_malloc(sizeof(ti_srv_rr_t));
+      if (!ti_srv_rr)
+	    return query_done(srv_qry, RULI_SRV_CODE_MALLOC);
 
-      if (ruli_list_push(&srv_qry->rr_srv_list, srv_rdata)) {
-	ruli_free(srv_rdata);
-	return query_done(srv_qry, RULI_SRV_CODE_LIST);
+      if (ruli_list_push(&srv_qry->rr_srv_list, ti_srv_rr)) {
+	    ruli_free(ti_srv_rr);
+	    return query_done(srv_qry, RULI_SRV_CODE_LIST);
       }
 
-      if (ruli_parse_rr_srv(srv_rdata, rr->rdata, rr->rdlength))
-	return query_done(srv_qry, RULI_SRV_CODE_PARSE_FAILED);
+      if (ruli_parse_rr_srv(&ti_srv_rr->srv_rdata, rr->rdata, rr->rdlength))
+	    return query_done(srv_qry, RULI_SRV_CODE_PARSE_FAILED);
+    
+      ti_srv_rr->ttl = rr->ttl;
+      ti_srv_rr->qclass = rr->qclass;
+      ti_srv_rr->type = rr->type;
     }
   }
 
@@ -704,14 +711,15 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
     fflush(stdout);
     for (i = 0; i < ruli_list_size(list); ++i) {
-      ruli_srv_rdata_t *srv_rdata = \
-	(ruli_srv_rdata_t *) ruli_list_get(list, i);
+      ti_srv_rr_t *ti_srv_rr_temp = \
+	(ti_srv_rr_t *) ruli_list_get(list, i);
+      ruli_srv_rdata_t *srv_rdata = &ti_srv_rr_temp->srv_rdata;
 
       fflush(stderr);
       fprintf(stderr,
 	      "DEBUG: on_srv_answer(): SRV RR: "
-	      "priority=%d weight=%d port=%d\n",
-	      srv_rdata->priority, srv_rdata->weight, srv_rdata->port);
+	      "priority=%d weight=%d port=%d ttl=%d\n",
+	      srv_rdata->priority, srv_rdata->weight, srv_rdata->port,ti_srv_rr_temp->ttl);
       fflush(stderr);
     }
   }
@@ -729,19 +737,22 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
      * Handle every RR based on priority (higher priority first)
      */
     for (j = 0; j < src_list_size; ++j) {
-      ruli_srv_rdata_t *srv_rdata    = \
-	(ruli_srv_rdata_t *) ruli_list_get(src_list, j);
+      ti_srv_rr_t *ti_srv_rr    = \
+	(ti_srv_rr_t *) ruli_list_get(src_list, j);
       ruli_list_t      *dst_list     = &srv_qry->pri_srv_list;
       int              dst_list_size = ruli_list_size(dst_list);
       int              i;
 
+      assert(ti_srv_rr);
+      ruli_srv_rdata_t *srv_rdata = &ti_srv_rr->srv_rdata;
       assert(srv_rdata);
 
       /*
        * Find a lower-or-equal priority
        */
       for (i = 0; i < dst_list_size; ++i) {
-	ruli_srv_rdata_t *rd = (ruli_srv_rdata_t *) ruli_list_get(dst_list, i);
+	ti_srv_rr_t *srv_rr_d = (ti_srv_rr_t *) ruli_list_get(dst_list, i);
+	ruli_srv_rdata_t *rd = &srv_rr_d->srv_rdata;
 
 	if (srv_rdata->priority < rd->priority)
 	  continue;
@@ -755,8 +766,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 	   * Find begin of next priority and insert there
 	   */
 	  for (; i < dst_list_size; ++i) {
-	    ruli_srv_rdata_t *s_rd = \
-	      (ruli_srv_rdata_t *) ruli_list_get(dst_list, i);
+	    ti_srv_rr_t *s_srv_rr_d = (ti_srv_rr_t *) ruli_list_get(dst_list, i);
+	    ruli_srv_rdata_t *s_rd = &s_srv_rr_d->srv_rdata;
 
 	    if (srv_rdata->priority != s_rd->priority)
 	      break;
@@ -766,7 +777,7 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
 	}
 
-	if (ruli_list_insert_at(dst_list, i, srv_rdata))
+	if (ruli_list_insert_at(dst_list, i, ti_srv_rr))
 	  return query_done(srv_qry, RULI_SRV_CODE_LIST);
 
 	srv_rdata = 0; /* mark as handled */
@@ -775,8 +786,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
       } /* for */
 
       /* If not handled yet, insert at tail */
-      if (srv_rdata)
-	if (ruli_list_push(dst_list, srv_rdata))
+      if (ti_srv_rr)
+	if (ruli_list_push(dst_list, ti_srv_rr))
 	  return query_done(srv_qry, RULI_SRV_CODE_LIST);
 
     } /* while */
@@ -789,14 +800,15 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
     fflush(stdout);
     for (i = 0; i < ruli_list_size(list); ++i) {
-      ruli_srv_rdata_t *srv_rdata = \
-	(ruli_srv_rdata_t *) ruli_list_get(list, i);
+      ti_srv_rr_t *ti_srv_rr_temp = \
+	(ti_srv_rr_t *) ruli_list_get(list, i);
+      ruli_srv_rdata_t *srv_rdata = &ti_srv_rr_temp->srv_rdata;
 
       fflush(stderr);
       fprintf(stderr,
 	      "DEBUG: on_srv_answer(): priority SRV RR: "
-	      "priority=%d weight=%d port=%d\n",
-	      srv_rdata->priority, srv_rdata->weight, srv_rdata->port);
+	      "priority=%d weight=%d port=%d ttl=%d\n",
+	      srv_rdata->priority, srv_rdata->weight, srv_rdata->port,ti_srv_rr_temp->ttl);
       fflush(stderr);
     }
   }
@@ -820,6 +832,7 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
       int              i;
       int              rnd;
       int              run_sum;
+      ti_srv_rr_t      *srv_rr_d;
       ruli_srv_rdata_t *srv_rd;
 
       if (src_list_size < 1)
@@ -829,7 +842,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
        * Get current priority
        */
       curr          = src_list_size - 1;
-      srv_rd        = (ruli_srv_rdata_t *) ruli_list_get(src_list, curr);
+      srv_rr_d      = (ti_srv_rr_t *) ruli_list_get(src_list, curr);
+      srv_rd        = &srv_rr_d->srv_rdata;
       curr_priority = srv_rd->priority;
 
       /*
@@ -837,7 +851,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
        */
       priority_weight_sum = 0;
       for (i = curr; i >= 0; --i) {
-	ruli_srv_rdata_t *rd = (ruli_srv_rdata_t *) ruli_list_get(src_list, i);
+      ti_srv_rr_t *srv_rr_rd      = (ti_srv_rr_t *) ruli_list_get(src_list, i);
+	  ruli_srv_rdata_t *rd = &srv_rr_rd->srv_rdata;
 	  
 	if (curr_priority != rd->priority)
 	  break;
@@ -860,7 +875,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
 	assert(i >= 0);
 
-	rd = (ruli_srv_rdata_t *) ruli_list_get(src_list, i);
+    ti_srv_rr_t *srv_rr_rd      = (ti_srv_rr_t *) ruli_list_get(src_list, i);
+	rd = (ruli_srv_rdata_t *)&srv_rr_rd->srv_rdata;
 	run_sum += rd->weight;
 
 	if (run_sum < rnd)
@@ -871,7 +887,7 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 	 * (Both lists are only referential)
 	 */
 	ruli_list_shift_at(src_list, i);
-	if (ruli_list_push(dst_list, rd))
+	if (ruli_list_push(dst_list, srv_rr_rd))
 	  return query_done(srv_qry, RULI_SRV_CODE_LIST);
 	  
 	break;
@@ -888,14 +904,15 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
     fflush(stdout);
     for (i = 0; i < ruli_list_size(list); ++i) {
-      ruli_srv_rdata_t *srv_rdata = \
-	(ruli_srv_rdata_t *) ruli_list_get(list, i);
+      ti_srv_rr_t *ti_srv_rr_temp = \
+	(ti_srv_rr_t *) ruli_list_get(list, i);
+      ruli_srv_rdata_t *srv_rdata = &ti_srv_rr_temp->srv_rdata;
 
       fflush(stderr);
       fprintf(stderr,
 	      "DEBUG: on_srv_answer(): weight SRV RR: "
-	      "priority=%d weight=%d port=%d\n",
-	      srv_rdata->priority, srv_rdata->weight, srv_rdata->port);
+	      "priority=%d weight=%d port=%d ttl=%d\n",
+	      srv_rdata->priority, srv_rdata->weight, srv_rdata->port, ti_srv_rr_temp->ttl);
       fflush(stderr);
     }
   }
@@ -931,7 +948,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
     /* Scan all targets */
     for (i = 0; i < src_list_size; ++i) {
-      ruli_srv_rdata_t *rd = (ruli_srv_rdata_t *) ruli_list_get(src_list, i);
+      ti_srv_rr_t *srv_rr_rd = (ti_srv_rr_t *) ruli_list_get(src_list, i);
+      ruli_srv_rdata_t *rd = (ruli_srv_rdata_t *)&srv_rr_rd->srv_rdata;
       ruli_srv_entry_t *srv_entry;
 
       /* Create SRV entry and append it to list */
@@ -940,7 +958,10 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 					  rd->target_len,
 					  rd->priority,
 					  rd->weight,
-					  rd->port);
+					  rd->port,
+                      srv_rr_rd->ttl,
+                      srv_rr_rd->qclass,
+                      srv_rr_rd->type);
       if (!srv_entry)
 	return query_done(srv_qry, RULI_SRV_CODE_MALLOC);
 
@@ -1019,8 +1040,8 @@ static void *on_srv_answer(ruli_res_query_t *qry, void *arg)
 
       fprintf(stderr,
 	      "DEBUG: on_srv_answer(): answer SRV RR: "
-	      "priority=%d weight=%d port=%d\n",
-	      srv_entry->priority, srv_entry->weight, srv_entry->port);
+	      "priority=%d weight=%d port=%d ttl=%d\n",
+	      srv_entry->priority, srv_entry->weight, srv_entry->port, srv_entry->ttl);
     }
     fflush(stderr);
   }
@@ -1282,7 +1303,10 @@ ruli_srv_entry_t *_ruli_srv_list_new_entry(ruli_list_t *srv_list,
 					   int target_len,
 					   int priority,
 					   int weight,
-					   int port)
+					   int port,
+                       int ttl,
+                       int qclass,
+                       int type)
 {
   ruli_srv_entry_t *srv_entry;
 
@@ -1315,6 +1339,10 @@ ruli_srv_entry_t *_ruli_srv_list_new_entry(ruli_list_t *srv_list,
 
   srv_entry->target_len = target_len;
   memcpy(srv_entry->target, target, target_len);
+
+  srv_entry->ttl = ttl;
+  srv_entry->qclass = qclass;
+  srv_entry->type = type;
 
   return srv_entry;
 }

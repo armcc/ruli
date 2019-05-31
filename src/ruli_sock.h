@@ -45,8 +45,8 @@ enum {
 
 
 int ruli_sock_create(int domain, int type, const char *proto_name);
-int ruli_sock_create_udp(int family);
-int ruli_sock_create_tcp(int family);
+int ruli_sock_create_udp(int family, char* interface);
+int ruli_sock_create_tcp(int family, char* interface);
 int ruli_sock_has_connected(int tcp_sd);
 void ruli_sock_set_sockaddr(struct sockaddr *sa, int *sa_len, 
 			    const _ruli_addr *inet, int family,

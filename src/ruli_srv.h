@@ -84,6 +84,9 @@ typedef struct {
   int         weight;
   int         port;
   ruli_list_t addr_list; /* list of *ruli_addr_t */
+  ruli_uint16_t      type;    /* Query type - A/SRV */
+  ruli_uint16_t      qclass;  /* Query class - IN */
+  ruli_uint32_t      ttl;     /* Time to live */
 } ruli_srv_entry_t;
 
 
@@ -167,7 +170,10 @@ ruli_srv_entry_t *_ruli_srv_list_new_entry(ruli_list_t *srv_list,
 					   int target_len,
 					   int priority,
 					   int weight,
-					   int port);
+					   int port,
+                       int ttl,
+                       int qclass,
+                       int type);
 
 
 #endif /* RULI_SRV_H */

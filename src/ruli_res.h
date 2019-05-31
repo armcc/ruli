@@ -22,6 +22,23 @@ Boston, MA 02111-1307, USA.
   $Id: ruli_res.h,v 1.27 2005/06/28 22:27:02 evertonm Exp $
   */
 
+/*-------------------------------------------------------------------------------------
+// Copyright 2007, Texas Instruments Incorporated
+//
+// This program has been modified from its original operation by Texas Instruments
+// to do the following:
+// 1. Made changes to bind the DNS requests to a specified interface.
+//
+// THIS MODIFIED SOFTWARE AND DOCUMENTATION ARE PROVIDED
+// "AS IS," AND TEXAS INSTRUMENTS MAKES NO REPRESENTATIONS
+// OR WARRENTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR ANY
+// PARTICULAR PURPOSE OR THAT THE USE OF THE SOFTWARE OR
+// DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY PATENTS,
+// COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+//
+// These changes are covered as per original license.
+//-------------------------------------------------------------------------------------*/
 
 #ifndef RULI_RES_H
 #define RULI_RES_H
@@ -208,6 +225,8 @@ typedef struct {
   oop_source          *res_source;       /* event source */
   int                 res_retry;         /* retry limit for each server */
   int                 res_timeout;       /* query timeout for each server */
+
+  char*             res_interface;      /* interface to use to send this query */
 } ruli_res_t;
 
 

@@ -11,6 +11,7 @@
 #DEBUG += -DRULI_MSG_DUMP_DEBUG -DRULI_SOCK_DUMP_DEBUG
 #DEBUG += -DRULI_SMTP_DEBUG
 #DEBUG += -DRULI_RFC3484_DEBUG
+#DEBUG += -DTI_API_DEBUG
 
 #
 # OOP_INCLUDE_DIR points the location of
@@ -59,11 +60,16 @@ FLAGS = $(DEBUG) -O2 -pipe -Wall -g -D_REENTRANT \
         $(DEFINE_SOLARIS) -I. -I$(OOP_INCLUDE_DIR)
 SOFT_CFLAGS = $(WARN) $(FLAGS)
 CFLAGS = $(WARN) -Werror $(FLAGS)
-LIBOBJ = ruli_isaac.o ruli_mem.o ruli_rand.o ruli_util.o ruli_list.o \
+LIBOBJX = ruli_isaac.o ruli_mem.o ruli_rand.o ruli_util.o ruli_list.o \
 	ruli_addr.o ruli_sock.o ruli_txt.o ruli_msg.o ruli_fsm.o \
 	ruli_res.o ruli_parse.o ruli_host.o ruli_srv.o ruli_conf.o \
 	ruli_search.o ruli_http.o ruli_smtp.o ruli_sync.o \
 	ruli_getaddrinfo.o
+
+# TI specific changes to LIBOBJ:
+LIBOBJ = $(filter-out ruli_http.o ruli_smtp.o ruli_sync.o ruli_getaddrinfo.o, $(LIBOBJX))
+LIBOBJ += ti_api.o trivial_conf_handler.o
+
 SHAREDOBJ = $(LIBOBJ:%.o=%.os)
 SONAME = libruli.so.4
 LDFLAGS = -L$(OOP_LIB_DIR)

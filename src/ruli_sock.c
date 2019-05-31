@@ -139,31 +139,55 @@ int ruli_sock_create(int family, int type, const char *proto_name)
   return sd;
 }
 
-int ruli_sock_create_udp(int family)
+int ruli_sock_create_udp(int family, char* interface)
 {
   int sd = ruli_sock_create(family, SOCK_DGRAM, "udp");
 
-#ifdef SO_BSDCOMPAT
-  if (sd == -1)
-    return -1;
+    if (sd == -1)
+        return -1;
 
-  /*
-   * We don't want Linux ECONNREFUSED on UDP sockets
-   */
-  {
-    int one = 1;
-
-    if (setsockopt(sd, SOL_SOCKET, SO_BSDCOMPAT, &one, sizeof(one)))
-      return -1;
-  }
-#endif /* Linux SO_BSDCOMPAT */
-
+    if(interface && strlen(interface) > 0) 
+    {
+        /*
+         * Bind the socket to interface specified. requirement
+         * for multiple logical IP stacks.
+        */
+        {
+            if (setsockopt(sd, SOL_SOCKET, SO_BINDTODEVICE, interface, strlen(interface) + 1) < 0) {
+                int result = close(sd);
+                assert(!result);
+                return -1;
+            }
+        }
+    }
   return sd;
 }
 
-int ruli_sock_create_tcp(int family)
+int ruli_sock_create_tcp(int family, char* interface)
 {
-  return ruli_sock_create(family, SOCK_STREAM, "tcp");
+    int sd = -1;
+
+    sd = ruli_sock_create(family, SOCK_STREAM, "tcp");
+
+    if(interface && strlen(interface) > 0) 
+    {
+        if (sd == -1)
+            return -1;
+
+        /*
+         * Bind the socket to interface specified. requirement
+         * for multiple logical IP stacks.
+        */
+        {
+            if (setsockopt(sd, SOL_SOCKET, SO_BINDTODEVICE, interface, strlen(interface) + 1) < 0) {
+                int result = close(sd);
+                assert(!result);
+                return -1;
+            }
+        }
+   }
+
+   return sd;
 }
 
 /*
