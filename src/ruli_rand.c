@@ -19,7 +19,7 @@ Boston, MA 02111-1307, USA.
 *-GNU-GPL-END-*/
 
 /*
-  $Id: ruli_rand.c,v 1.7 2004/05/21 18:23:50 evertonm Exp $
+  $Id: ruli_rand.c,v 1.8 2006/03/23 17:32:49 evertonm Exp $
  */
 
 
@@ -34,7 +34,7 @@ void ruli_rand_init(ruli_rand_t *rand_ctx)
 
   rand_ctx->isaac_ctx.randa = 0;
   rand_ctx->isaac_ctx.randb = rand_ctx->isaac_ctx.randa;
-  rand_ctx->isaac_ctx.randc = rand_ctx->isaac_ctx.randc;
+  rand_ctx->isaac_ctx.randc = rand_ctx->isaac_ctx.randb;
 
   for (i = 0; i < 256; ++i)
     rand_ctx->isaac_ctx.randrsl[i] = 0;
