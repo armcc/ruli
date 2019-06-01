@@ -46,7 +46,7 @@
 #include <ti_api_hidden.h>
 
 #include "trivial_conf_handler.h"
-#include "autoconf.h"
+//#include "autoconf.h"
 #include "sys_nettypes.h"
 /**************************************************************************
  * Global variable declarations.
