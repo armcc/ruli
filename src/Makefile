@@ -55,7 +55,7 @@ WARN += -Wstrict-prototypes
 endif
 
 SHARED = -fPIC
-FLAGS = $(DEBUG) -O2 -pipe -Wall -g -shared -D_REENTRANT \
+FLAGS = $(DEBUG) -O2 -pipe -Wall -g -D_REENTRANT \
         $(DEFINE_SOLARIS) -I. -I$(OOP_INCLUDE_DIR)
 SOFT_CFLAGS = $(WARN) $(FLAGS)
 CFLAGS = $(WARN) -Werror $(FLAGS)
@@ -156,7 +156,7 @@ ifdef DEFINE_SOLARIS
 	$(CC) $(ARCH) $(CFLAGS) $(LDFLAGS) -Wl,-h,$(SONAME) -o $@ \
 		$(SHAREDOBJ) -loop -ldl -lsocket -lnsl
 else
-	$(CC) $(ARCH) $(CFLAGS) $(LDFLAGS) -Wl,-soname,$(SONAME) \
+	$(CC) $(ARCH) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,$(SONAME) \
 		-Wl,--version-script,libruli.ver -o $@ $(SHAREDOBJ) -loop -ldl
 endif
 
