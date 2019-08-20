@@ -36,6 +36,9 @@
  *************************************************************************/
 #define QBUFSZ RULI_LIMIT_DNAME_TEXT_BUFSZ
 
+#define RULI_ADDR_TYPE_IPV4 101
+#define RULI_ADDR_TYPE_IPV6 102
+
 /**************************************************************************
  * FUNCTION NAME : ti_dns_query_srvrr
  **************************************************************************
@@ -47,7 +50,7 @@
  * positive number (>=0) and -1 otherwise.
  *************************************************************************/
 #define ti_dns_query_srvrr(ti_res_handle, domain, call) \
-    ti_dns_general_query_srvrr(ti_res_handle, domain, 1, call)
+    ti_dns_general_query_srvrr(ti_res_handle, domain, RULI_ADDR_TYPE_IPV4, call)
 	
 /**************************************************************************
  * FUNCTION NAME : ti_dns_query_hostname

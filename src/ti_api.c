@@ -47,7 +47,7 @@
 
 #include "trivial_conf_handler.h"
 //#include "autoconf.h"
-#include "sys_nettypes.h"
+
 /**************************************************************************
  * Global variable declarations.
  *************************************************************************/
@@ -827,13 +827,31 @@ int ti_dns_general_query_srvrr(int ti_res_handle, char *domain, unsigned char ty
     */
 
     {
-	
+        if (type == 1 /* == INET_ADDR_TYPE_IPV4 */ )
+        {
+            fprintf(stderr,
+                "ti_dns_general_query_srvrr(): ** Obsolete type - update caller to use RULI_ADDR_TYPE_IPV4 / RULI_ADDR_TYPE_IPV6 **\n");
+            type = RULI_ADDR_TYPE_IPV4;
+        }
+        else if (type == 2 /* == INET_ADDR_TYPE_IPV6 */ )
+        {
+            fprintf(stderr,
+                "ti_dns_general_query_srvrr(): ** Obsolete type - update caller to use RULI_ADDR_TYPE_IPV4 / RULI_ADDR_TYPE_IPV6 **\n");
+            type = RULI_ADDR_TYPE_IPV6;
+        }
+
+        if ((type != RULI_ADDR_TYPE_IPV4) && (type != RULI_ADDR_TYPE_IPV6))
+        {
+            fprintf(stderr,
+                "ti_dns_general_query_srvrr(): ** Unexpected type %d **\n", (int) type);
+        }
+
         /* dont try to resolve addresses which we dont support */
-        if (type == INET_ADDR_TYPE_IPV4)
+        if (type == RULI_ADDR_TYPE_IPV4)
         {
             options |= RULI_RES_OPT_SRV_NOINET6;
         }
-        else if (type == INET_ADDR_TYPE_IPV6)
+        else if (type == RULI_ADDR_TYPE_IPV6)
         {
             options |= RULI_RES_OPT_SRV_NOINET;
         }
