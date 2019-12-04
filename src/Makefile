@@ -44,7 +44,11 @@ ifeq ($(PLATFORM),SunOS)
 DEFINE_SOLARIS = -D_RULI_SOLARIS_
 endif
 
-WARN = -pedantic -ansi -Wshadow -Wpointer-arith -Wcast-qual \
+# The original code included -ansi (equivalent to -std=c90) in WARN,
+# which means GNU extensions were disabled, which may cause build
+# issues due to SO_BINDTODEVICE not being defined by <sys/socket.h>.
+
+WARN = -pedantic -std=gnu90 -Wshadow -Wpointer-arith -Wcast-qual \
 	-Wcast-align -Wwrite-strings -Wredundant-decls
 CC = gcc
 
